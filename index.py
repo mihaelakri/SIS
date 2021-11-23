@@ -16,6 +16,27 @@ def register_user(ime, email, lozinka, kontakt, datum):
     
     con.commit()
     con.close()
+
+def login(email, lozinka):
+    cur = con.cursor()
+    transbyte = str.encode(lozinka)
+    h = blake2b()
+    h.update(transbyte)
+    lozinka = h.hexdigest()
+    cur.execute("SELECT * FROM user WHERE email= ? AND password= ?;", (email, lozinka))
+    lista = cur.fetchone()
+    rc = len(lista)
+    if rc > 1:
+        cur2 = con.cursor()
+        brPrijava = lista[6]+1
+        print(brPrijava)
+        id_user = lista[0]
+        cur2.execute("UPDATE user SET brPrijava = ? WHERE id = ?;",(brPrijava, id_user))
+        print("Uspješna prijava!")
+    else:
+        print("Prijava neuspješna.")
+    con.commit()
+    con.close()
     
     
 datum = date.today()
@@ -35,7 +56,7 @@ if broj == 1:
     lozinka = input("Unesi lozinku: ")
     while lozinka == "":
         lozinka = input("Unesi lozinku: ")
-    print("Uspješna prijava")
+    login(email, lozinka)
 if broj == 2:
     ime = input("Unesi ime: ")
     while ime == "":
